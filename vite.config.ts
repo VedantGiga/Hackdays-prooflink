@@ -75,6 +75,10 @@ export default defineConfig(({ mode }) => {
         },
       },
     ],
+    build: {
+      outDir: 'public',
+      emptyOutDir: true,
+    },
     server: {
       headers: {
         "Cross-Origin-Opener-Policy": "unsafe-none",
