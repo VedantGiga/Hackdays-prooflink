@@ -117,6 +117,7 @@ async function callBestAvailableGemini(payload: any) {
           - versatility: { frontend: 0-100, backend: 0-100, devops: 0-100 } based on repo languages.
           - careerTrajectory: A 1-sentence prediction of their next 2 years.
           - projectInsights: An array of 3 objects { name, impact, techStack } for the best projects.
+          - architectureGraph: { nodes: Array<{id, label, type: 'project'|'language'|'concept'}>, links: Array<{source, target, rel}> } representing their technical ecosystem.
           - socialAudit: A 1-sentence analysis of their community presence based on the provided social handles (LinkedIn, X, IG).
           
           Return ONLY raw JSON.` 

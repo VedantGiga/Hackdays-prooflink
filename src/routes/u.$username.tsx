@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getPublicProfile } from "@/lib/prooflink.functions";
-import { Linkedin, Twitter, Instagram, Github, ExternalLink } from "lucide-react";
+import { Linkedin, Twitter, Instagram, Github, ExternalLink, Globe, Layout, Rocket, Box, Cpu, Zap, FileText, ShieldCheck, Target } from "lucide-react";
 
 interface AiData {
   headline?: string;
@@ -64,7 +64,9 @@ interface GeneratedData {
 interface PublicProfile {
   username: string;
   display_name: string | null;
+  email: string | null;
   headline: string | null;
+  live_url: string | null;
   github_handle: string | null;
   linkedin_handle: string | null;
   twitter_handle: string | null;
@@ -151,17 +153,14 @@ function PublicProfilePage() {
     setTimeout(() => setCopied(false), 1500);
   };
 
+  const formattedLiveUrl = profile.live_url ? (profile.live_url.startsWith('http') ? profile.live_url : `https://${profile.live_url}`) : null;
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-6xl px-4 py-8 md:px-8 md:py-14">
         <div className="mb-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="grid h-7 w-7 grid-cols-2 grid-rows-2 border-[2px] border-foreground">
-              <span className="bg-foreground" />
-              <span className="bg-electric" />
-              <span className="bg-neon" />
-              <span className="bg-grape" />
-            </div>
+            <img src="/logo.png" alt="ProofLink" className="h-7 w-7 border-[2px] border-foreground object-contain bg-white" />
             <span className="font-display text-base font-bold">ProofLink</span>
           </Link>
           <button
@@ -201,6 +200,11 @@ function PublicProfilePage() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
+              {profile.email && (
+                <a className="chip bg-electric text-background border-none hover:bg-neon transition-all hover:scale-105 active:scale-95" href={`mailto:${profile.email}`}>
+                  HIRE ME ⚡
+                </a>
+              )}
               {profile.github_handle && (
                 <a className="chip" href={`https://github.com/${profile.github_handle}`} target="_blank" rel="noreferrer">
                   github/{profile.github_handle}
@@ -304,6 +308,118 @@ function PublicProfilePage() {
                 </div>
               </div>
 
+              {/* Technical Impact Matrix */}
+              <div className="grid grid-cols-1 border-b-[2px] border-foreground md:grid-cols-4 bg-foreground text-background">
+                <ImpactStat label="Architecture Depth" value={`${gh?.stats?.topLanguages?.length || 0} Layers`} desc="Multi-stack proficiency" />
+                <ImpactStat label="Engineering Velocity" value={`${gh?.stats?.activeRepos || 0} Modules`} desc="Total active codebase" />
+                <ImpactStat label="Community Influence" value={`${gh?.stats?.totalStars || 0} Stars`} desc="Public proof of work" />
+                <ImpactStat label="Deployment Surface" value={`${profile.live_url ? '1 Live' : '0 Live'}`} desc="Production visibility" />
+              </div>
+
+              {/* Engineering Case Studies (Practical & High Impact) */}
+              {ai.projectInsights && ai.projectInsights.length > 0 && (
+                <div className="border-b-[2px] border-foreground p-6 md:p-10 bg-paper">
+                  <div className="mb-10 text-center">
+                    <span className="chip bg-foreground text-background">Practical Engineering Dossier</span>
+                    <h3 className="mt-4 font-display text-2xl font-bold uppercase tracking-tight md:text-3xl">Technical Case Studies</h3>
+                    <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Deep analysis of production-grade contributions</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    {ai.projectInsights.map((proj, i) => (
+                      <div key={i} className="brut bg-background overflow-hidden group">
+                        <div className="border-b-[2px] border-foreground bg-foreground p-3 text-background flex items-center justify-between">
+                          <span className="font-mono text-[9px] uppercase font-bold tracking-widest">Case Study #{i + 1}</span>
+                          <FileText size={12} />
+                        </div>
+                        <div className="p-5">
+                          <h4 className="font-display text-xl font-bold mb-3 group-hover:text-electric transition-colors">{proj.name}</h4>
+
+                          <div className="space-y-4">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <ShieldCheck size={12} className="text-neon" />
+                                <span className="font-mono text-[8px] uppercase font-bold text-muted-foreground tracking-widest">The Core Impact</span>
+                              </div>
+                              <p className="text-xs leading-relaxed italic border-l-[2px] border-neon/30 pl-3 py-1">
+                                {proj.impact}
+                              </p>
+                            </div>
+
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <Zap size={12} className="text-electric" />
+                                <span className="font-mono text-[8px] uppercase font-bold text-muted-foreground tracking-widest">Stack Architecture</span>
+                              </div>
+                              <div className="flex flex-wrap gap-1.5 pl-5">
+                                {proj.techStack.split(',').map((t, ti) => (
+                                  <span key={ti} className="font-mono text-[9px] uppercase bg-foreground/5 px-1.5 py-0.5 border-[1px] border-foreground/10">{t.trim()}</span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="border-t-[1.5px] border-foreground/10 p-3 bg-foreground/5 flex justify-between items-center">
+                          <span className="font-mono text-[8px] uppercase text-muted-foreground tracking-tighter">Status: Verified Codebase</span>
+                          <Target size={12} className="opacity-30" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Live Preview (The Peek) */}
+              {formattedLiveUrl && (
+                <div className="border-b-[2px] border-foreground bg-background p-6 md:p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-2">
+                      <span className="chip bg-neon">Live Project Preview</span>
+                      <span className="font-mono text-[10px] text-muted-foreground uppercase hidden md:inline">● Interactive Frame</span>
+                    </div>
+                    <a
+                      href={formattedLiveUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="brut brut-hover brut-press flex items-center gap-2 bg-foreground px-3 py-1.5 font-mono text-[10px] font-bold uppercase text-background"
+                    >
+                      Visit Deployment <ExternalLink size={12} />
+                    </a>
+                  </div>
+
+                  <div className="brut overflow-hidden bg-foreground">
+                    {/* Browser Top Bar */}
+                    <div className="flex items-center gap-1.5 border-b-[2px] border-foreground bg-background px-4 py-2.5">
+                      <div className="flex gap-1.5 mr-4">
+                        <div className="h-2.5 w-2.5 rounded-full border-[1.5px] border-foreground bg-destructive" />
+                        <div className="h-2.5 w-2.5 rounded-full border-[1.5px] border-foreground bg-amber-400" />
+                        <div className="h-2.5 w-2.5 rounded-full border-[1.5px] border-foreground bg-emerald-500" />
+                      </div>
+                      <div className="flex h-6 flex-1 items-center rounded border-[1.5px] border-foreground bg-foreground/5 px-3 font-mono text-[10px] text-muted-foreground overflow-hidden">
+                        <Globe size={10} className="mr-2" /> {formattedLiveUrl}
+                      </div>
+                    </div>
+                    {/* Iframe Preview */}
+                    <div className="relative aspect-video w-full bg-white group">
+                      <iframe
+                        src={formattedLiveUrl}
+                        className="h-full w-full opacity-90 transition-opacity group-hover:opacity-100"
+                        title="Live Preview"
+                        loading="lazy"
+                      />
+                      {/* Overlay for interaction safety */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-foreground/5 backdrop-blur-[0.5px] group-hover:bg-transparent transition-all pointer-events-none md:pointer-events-auto">
+                        <div className="pointer-events-auto flex flex-col items-center gap-4 text-center p-6 bg-background/90 brut border-none md:hidden">
+                          <Rocket size={32} className="text-electric" />
+                          <p className="font-display font-bold">Best viewed on desktop</p>
+                          <a href={formattedLiveUrl} target="_blank" rel="noreferrer" className="chip bg-foreground text-background">Launch App</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Social Hub (Creative Section) */}
               <div className="border-b-[2px] border-foreground bg-paper p-6 md:p-8">
                 <div className="flex flex-col gap-6 md:flex-row md:items-start">
@@ -314,53 +430,33 @@ function PublicProfilePage() {
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-2 md:w-64">
-                    <SocialCard 
-                      icon={<Linkedin size={18} />} 
-                      label="LinkedIn" 
+                    <SocialCard
+                      icon={<Linkedin size={18} />}
+                      label="LinkedIn"
                       href={profile.linkedin_handle ? `https://linkedin.com/in/${profile.linkedin_handle}` : null}
                       color="bg-[#0077B5]"
                     />
-                    <SocialCard 
-                      icon={<Twitter size={18} />} 
-                      label="X / Twitter" 
+                    <SocialCard
+                      icon={<Twitter size={18} />}
+                      label="X / Twitter"
                       href={profile.twitter_handle ? `https://x.com/${profile.twitter_handle}` : null}
                       color="bg-foreground"
                     />
-                    <SocialCard 
-                      icon={<Instagram size={18} />} 
-                      label="Instagram" 
+                    <SocialCard
+                      icon={<Instagram size={18} />}
+                      label="Instagram"
                       href={profile.instagram_handle ? `https://instagram.com/${profile.instagram_handle}` : null}
                       color="bg-[#E4405F]"
                     />
-                    <SocialCard 
-                      icon={<Github size={18} />} 
-                      label="GitHub" 
+                    <SocialCard
+                      icon={<Github size={18} />}
+                      label="GitHub"
                       href={profile.github_handle ? `https://github.com/${profile.github_handle}` : null}
                       color="bg-[#333]"
                     />
                   </div>
                 </div>
               </div>
-
-              {/* Deep Dive Projects */}
-              {ai.projectInsights && ai.projectInsights.length > 0 && (
-                <div className="border-b-[2px] border-foreground p-6 md:p-8">
-                  <span className="chip mb-4 bg-neon">Project Deep Dives</span>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    {ai.projectInsights.map((proj, i) => (
-                      <div key={i} className="brut bg-background p-5">
-                        <h4 className="font-display text-lg font-bold">{proj.name}</h4>
-                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{proj.impact}</p>
-                        <div className="mt-3 flex flex-wrap gap-1">
-                          {proj.techStack.split(',').map((t, ti) => (
-                            <span key={ti} className="border-[1px] border-foreground px-1.5 py-0.5 font-mono text-[9px] uppercase">{t.trim()}</span>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </>
           )}
         </div>
@@ -382,18 +478,18 @@ function PublicProfilePage() {
 
 function SocialCard({ icon, label, href, color }: { icon: React.ReactNode; label: string; href: string | null; color: string }) {
   if (!href) return (
-    <div className="brut opacity-30 grayscale p-3 flex flex-col items-center justify-center gap-2 aspect-square text-center">
-      <div className="text-foreground">{icon}</div>
+    <div className="brut opacity-30 grayscale p-3 flex flex-col items-center justify-center gap-2 aspect-square text-center text-muted-foreground">
+      <div className="mb-1">{icon}</div>
       <span className="font-mono text-[8px] uppercase tracking-tighter">{label}</span>
     </div>
   );
 
   return (
-    <a 
-      href={href} 
-      target="_blank" 
-      rel="noreferrer" 
-      className={`brut brut-hover brut-press p-3 flex flex-col items-center justify-center gap-2 aspect-square text-center bg-white`}
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className={`brut brut-hover brut-press p-3 flex flex-col items-center justify-center gap-2 aspect-square text-center bg-white transition-transform`}
     >
       <div className={`p-1.5 rounded-full text-white ${color}`}>{icon}</div>
       <span className="font-mono text-[8px] uppercase tracking-tighter font-bold">{label}</span>
@@ -404,11 +500,11 @@ function SocialCard({ icon, label, href, color }: { icon: React.ReactNode; label
 function Versatility({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-1">
+      <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-1 text-muted-foreground">
         <span>{label}</span>
         <span>{value}%</span>
       </div>
-      <div className="h-1.5 border-[1.5px] border-foreground">
+      <div className="h-1.5 border-[1.5px] border-foreground bg-background">
         <span className="block h-full bg-foreground" style={{ width: `${value}%` }} />
       </div>
     </div>
@@ -438,15 +534,28 @@ function Stat({
 
 function BulletBox({ label, items }: { label: string; items: string[] }) {
   return (
-    <div className="brut p-3">
-      <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+    <div className="brut p-4 bg-background">
+      <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3 border-b-[1px] border-foreground/10 pb-1">
         {label}
       </div>
-      <ul className="mt-2 space-y-1 text-sm">
+      <ul className="space-y-2 text-sm">
         {items.map((it, i) => (
-          <li key={i}>→ {it}</li>
+          <li key={i} className="flex gap-2">
+            <span className="text-electric">→</span>
+            <span>{it}</span>
+          </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function ImpactStat({ label, value, desc }: { label: string; value: string; desc: string }) {
+  return (
+    <div className="p-6 border-foreground/20 not-last:md:border-r-[2px] transition-colors hover:bg-background hover:text-foreground group">
+      <div className="font-mono text-[9px] uppercase tracking-[0.2em] opacity-60 mb-2">{label}</div>
+      <div className="font-display text-2xl font-bold mb-1">{value}</div>
+      <div className="font-mono text-[8px] uppercase tracking-wider opacity-50">{desc}</div>
     </div>
   );
 }

@@ -15,7 +15,9 @@ type Profile = {
   user_id: string;
   username: string;
   display_name: string | null;
+  email: string | null;
   headline: string | null;
+  live_url: string | null;
   github_handle: string | null;
   linkedin_handle: string | null;
   twitter_handle: string | null;
@@ -44,6 +46,7 @@ function Dashboard() {
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [headline, setHeadline] = useState("");
+  const [liveUrl, setLiveUrl] = useState("");
   const [github, setGithub] = useState("");
   const [linkedin, setLinkedin] = useState("");
   const [twitter, setTwitter] = useState("");
@@ -57,22 +60,23 @@ function Dashboard() {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    
+
     const loadProfile = async () => {
       try {
         const token = await getIdToken();
         if (!token || token === lastLoadedTokenRef.current) return;
         lastLoadedTokenRef.current = token;
-        
+
         setLoading(true);
-        
+
         const { profile } = await getMyProfile({ data: { idToken: token } });
-        
+
         if (profile) {
           setProfile(profile as Profile);
           setUsername(profile.username ?? "");
           setDisplayName(profile.display_name ?? "");
           setHeadline(profile.headline ?? "");
+          setLiveUrl(profile.live_url ?? "");
           setGithub(profile.github_handle ?? "");
           setLinkedin(profile.linkedin_handle ?? "");
           setTwitter(profile.twitter_handle ?? "");
@@ -125,7 +129,7 @@ function Dashboard() {
       toast.error("Resume must be under 8MB");
       return;
     }
-    
+
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
     const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
@@ -144,9 +148,9 @@ function Dashboard() {
         method: "POST",
         body: formData,
       });
-      
+
       if (!res.ok) throw new Error("Upload failed");
-      
+
       const data = await res.json();
       setResumePath(data.secure_url);
       setResumeUrl(data.secure_url);
@@ -198,14 +202,16 @@ function Dashboard() {
     try {
       const token = await getIdToken();
       if (!token) throw new Error("Please log in again");
-      
+
       // Auto-save before generating to ensure backend has latest handles
       await saveProfile({
         data: {
           idToken: token,
           username,
           display_name: displayName || null,
+          email: user?.email || null,
           headline: headline || null,
+          live_url: liveUrl || null,
           github_handle: github || null,
           linkedin_handle: linkedin || null,
           twitter_handle: twitter || null,
@@ -273,8 +279,8 @@ function Dashboard() {
                     <span className="flex items-center bg-foreground px-3 font-mono text-xs text-background">prooflink/u/</span>
                     <input
                       value={username}
-                      onChange={(e) => setUsername(e.target.value.toLowerCase().trim())}
-                      placeholder="ada-lovelace"
+                      onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '').trim())}
+                      placeholder="my-handle"
                       className="w-full bg-transparent px-3 py-3 font-mono text-sm outline-none"
                     />
                     <span className="flex items-center px-3 font-mono text-[10px] uppercase tracking-widest">
@@ -300,6 +306,14 @@ function Dashboard() {
                       value={headline}
                       onChange={(e) => setHeadline(e.target.value)}
                       placeholder="Systems engineer · Open source"
+                      className="brut-input"
+                    />
+                  </Field>
+                  <Field label="Live Project URL (e.g. your best app)">
+                    <input
+                      value={liveUrl}
+                      onChange={(e) => setLiveUrl(e.target.value.trim())}
+                      placeholder="https://my-awesome-app.com"
                       className="brut-input"
                     />
                   </Field>
