@@ -54,7 +54,7 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
   );
 }
 
-export const getRouter = () => {
+export const createRouter = () => {
   const router = createRouter({
     routeTree,
     context: {},

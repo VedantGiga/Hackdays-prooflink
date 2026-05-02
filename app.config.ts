@@ -5,8 +5,8 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   vite: {
     plugins: [
-      tailwindcss(),
       tsconfigPaths(),
+      tailwindcss(),
     ],
     server: {
       headers: {
