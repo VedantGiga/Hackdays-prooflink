@@ -1,20 +1,24 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import admin from 'firebase-admin';
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
+function initAdmin() {
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      }),
+    });
+  }
+  return admin;
 }
 
-const db = admin.firestore();
-const auth = admin.auth();
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const firebase = initAdmin();
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+
   const { idToken } = req.body;
   if (!idToken) return res.status(401).json({ error: 'No token' });
 
@@ -42,6 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({ profile: { ...profile, ...generated } });
   } catch (error: any) {
+    console.error('Generation Error:', error.message);
     return res.status(500).json({ error: error.message });
   }
 }

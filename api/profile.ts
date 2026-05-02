@@ -1,24 +1,32 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import admin from 'firebase-admin';
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
+function initAdmin() {
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      }),
+    });
+  }
+  return admin;
 }
 
-const db = admin.firestore();
-const auth = admin.auth();
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const firebase = initAdmin();
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+
+  console.log('API Request:', req.method, req.body?.action);
   const { method } = req;
   const idToken = req.body?.idToken || req.query?.idToken;
 
-  if (!idToken) return res.status(401).json({ error: 'No token' });
+  if (!idToken) {
+    console.error('Missing ID Token');
+    return res.status(401).json({ error: 'No token' });
+  }
 
   try {
     const decoded = await auth.verifyIdToken(idToken as string);
@@ -52,7 +60,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(405).end();
   } catch (error: any) {
-    console.error(error);
+    console.error('API Error:', error.message);
     return res.status(500).json({ error: error.message });
   }
 }

@@ -47,15 +47,18 @@ function Dashboard() {
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastLoadedTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) return;
     
     const loadProfile = async () => {
-      setLoading(true);
       try {
         const token = await getIdToken();
-        if (!token) return;
+        if (!token || token === lastLoadedTokenRef.current) return;
+        lastLoadedTokenRef.current = token;
+        
+        setLoading(true);
         
         const { profile } = await getMyProfile({ data: { idToken: token } });
         
