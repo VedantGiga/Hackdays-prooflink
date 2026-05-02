@@ -1,0 +1,226 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * ProofLink design system — brutalist + pixel hybrid.
+ * Hard borders, square edges, controlled neon pops.
+ */
+
+@theme inline {
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+
+  /* ProofLink brand pops */
+  --color-electric: var(--electric);
+  --color-electric-foreground: var(--electric-foreground);
+  --color-neon: var(--neon);
+  --color-neon-foreground: var(--neon-foreground);
+  --color-grape: var(--grape);
+  --color-grape-foreground: var(--grape-foreground);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-pixel: var(--pixel);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+:root {
+  --radius: 0px;
+
+  /* Paper / ink base */
+  --paper: oklch(0.985 0.005 95);            /* warm off-white */
+  --ink: oklch(0.14 0.01 270);               /* near-black */
+  --pixel: oklch(0.92 0.005 95);             /* light grid line */
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+
+  --card: oklch(1 0 0);
+  --card-foreground: var(--ink);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--ink);
+
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: oklch(0.96 0.005 95);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.94 0.005 95);
+  --muted-foreground: oklch(0.45 0.01 270);
+  --accent: oklch(0.96 0.005 95);
+  --accent-foreground: var(--ink);
+  --destructive: oklch(0.62 0.24 27);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: var(--ink);
+  --input: var(--ink);
+  --ring: var(--ink);
+
+  /* Brand pops */
+  --electric: oklch(0.68 0.21 245);          /* electric blue */
+  --electric-foreground: var(--ink);
+  --neon: oklch(0.88 0.24 135);              /* neon green */
+  --neon-foreground: var(--ink);
+  --grape: oklch(0.74 0.16 305);             /* soft purple */
+  --grape-foreground: var(--ink);
+
+  --chart-1: var(--electric);
+  --chart-2: var(--neon);
+  --chart-3: var(--grape);
+  --chart-4: oklch(0.78 0.18 60);
+  --chart-5: oklch(0.62 0.2 25);
+
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper);
+  --sidebar-accent: oklch(0.96 0.005 95);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--ink);
+  --sidebar-ring: var(--ink);
+}
+
+.dark {
+  --paper: oklch(0.16 0.01 270);
+  --ink: oklch(0.985 0.005 95);
+  --pixel: oklch(0.24 0.01 270);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+
+  --card: oklch(0.2 0.01 270);
+  --card-foreground: var(--ink);
+  --popover: oklch(0.2 0.01 270);
+  --popover-foreground: var(--ink);
+
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: oklch(0.24 0.01 270);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.22 0.01 270);
+  --muted-foreground: oklch(0.7 0.01 270);
+  --accent: oklch(0.24 0.01 270);
+  --accent-foreground: var(--ink);
+  --destructive: oklch(0.7 0.2 22);
+  --destructive-foreground: var(--ink);
+
+  --border: var(--ink);
+  --input: var(--ink);
+  --ring: var(--ink);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    background-image:
+      linear-gradient(to right, var(--color-pixel) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-pixel) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: -1px -1px;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+}
+
+@layer components {
+  /* Brutalist hard-edge card */
+  .brut {
+    @apply border-[2px] border-foreground bg-card;
+    box-shadow: 6px 6px 0 0 var(--color-foreground);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+  .brut-hover:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 10px 10px 0 0 var(--color-foreground);
+  }
+  .brut-press:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 var(--color-foreground);
+  }
+
+  /* Section wrapper with hard top border */
+  .brut-section {
+    @apply border-t-[2px] border-foreground;
+  }
+
+  /* Pixel chip */
+  .chip {
+    @apply inline-flex items-center gap-1 border-[2px] border-foreground bg-background px-2 py-0.5 font-mono text-xs uppercase tracking-wider;
+  }
+
+  /* Brutalist input */
+  .brut-input {
+    @apply w-full border-[2px] border-foreground bg-background px-3 py-3 font-mono text-sm outline-none focus:bg-card;
+  }
+
+  /* Marquee-ish tag row */
+  .stat-num {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+  }
+}
+
+/* GSAP reveal helpers */
+.reveal-up { opacity: 0; transform: translateY(24px); }
