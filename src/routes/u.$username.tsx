@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getPublicProfile } from "@/lib/prooflink.functions";
+import { Linkedin, Twitter, Instagram, Github, ExternalLink } from "lucide-react";
 
 interface AiData {
   headline?: string;
@@ -13,6 +14,10 @@ interface AiData {
   suggestions?: string[];
   hireSignal?: string;
   tags?: string[];
+  versatility?: { frontend: number; backend: number; devops: number };
+  careerTrajectory?: string;
+  projectInsights?: { name: string; impact: string; techStack: string }[];
+  socialAudit?: string;
 }
 
 interface GeneratedData {
@@ -61,6 +66,9 @@ interface PublicProfile {
   display_name: string | null;
   headline: string | null;
   github_handle: string | null;
+  linkedin_handle: string | null;
+  twitter_handle: string | null;
+  instagram_handle: string | null;
   leetcode_handle: string | null;
   resume_path: string | null;
   generated_data: GeneratedData | null;
@@ -229,28 +237,40 @@ function PublicProfilePage() {
                 />
               </div>
 
+              {/* Versatility + Career Trajectory */}
+              {(ai.versatility || ai.careerTrajectory) && (
+                <div className="grid grid-cols-12 border-b-[2px] border-foreground bg-foreground/5">
+                  <div className="col-span-12 p-6 md:col-span-7 md:border-r-[2px] md:border-foreground md:p-8">
+                    <span className="chip bg-neon">Career Trajectory</span>
+                    <p className="mt-3 font-display text-lg font-bold italic md:text-xl">
+                      "{ai.careerTrajectory || "On a high-growth engineering path."}"
+                    </p>
+                  </div>
+                  <div className="col-span-12 p-6 md:col-span-5 md:p-8">
+                    <span className="chip bg-electric">Versatility Matrix</span>
+                    <div className="mt-4 space-y-3">
+                      <Versatility label="Frontend" value={ai.versatility?.frontend ?? 0} />
+                      <Versatility label="Backend" value={ai.versatility?.backend ?? 0} />
+                      <Versatility label="DevOps" value={ai.versatility?.devops ?? 0} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Summary + skills */}
               <div className="grid grid-cols-12 border-b-[2px] border-foreground">
                 <div className="col-span-12 border-foreground p-6 md:col-span-8 md:border-r-[2px] md:p-8">
-                  <span className="chip bg-grape">AI Summary</span>
+                  <span className="chip bg-grape">Technical Audit</span>
                   <p className="mt-4 text-sm leading-relaxed md:text-base">{ai.summary}</p>
 
                   <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
                     <BulletBox label="Strengths" items={ai.strengths ?? []} />
-                    <BulletBox label="Suggestions" items={ai.suggestions ?? []} />
+                    <BulletBox label="Technical Growth" items={ai.suggestions ?? []} />
                   </div>
-
-                  {ai.scoreBreakdown && (
-                    <div className="mt-6 grid grid-cols-3 gap-3">
-                      <Score label="Consistency" v={ai.scoreBreakdown.consistency ?? 0} />
-                      <Score label="Depth" v={ai.scoreBreakdown.depth ?? 0} />
-                      <Score label="Breadth" v={ai.scoreBreakdown.breadth ?? 0} />
-                    </div>
-                  )}
                 </div>
 
                 <div className="col-span-12 p-6 md:col-span-4 md:p-8">
-                  <span className="chip">Skills</span>
+                  <span className="chip">Tech Stack</span>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {(ai.skills ?? []).map((s) => (
                       <span key={s} className="chip">{s}</span>
@@ -259,7 +279,7 @@ function PublicProfilePage() {
 
                   {gh?.stats?.topLanguages && gh.stats.topLanguages.length > 0 && (
                     <>
-                      <span className="chip mt-6">Top Languages</span>
+                      <span className="chip mt-6">Language Proficiency</span>
                       <div className="mt-4 space-y-2">
                         {gh.stats.topLanguages.slice(0, 6).map((l) => (
                           <div key={l.name} className="flex items-center gap-3">
@@ -284,43 +304,59 @@ function PublicProfilePage() {
                 </div>
               </div>
 
-              {/* LeetCode */}
-              {lc && (
-                <div className="grid grid-cols-2 border-b-[2px] border-foreground md:grid-cols-5">
-                  <Stat label="LC easy" value={lc.solved.easy} />
-                  <Stat label="LC medium" value={lc.solved.medium} />
-                  <Stat label="LC hard" value={lc.solved.hard} />
-                  <Stat label="Contest" value={lc.contestRating} />
-                  <Stat label="Ranking" value={`#${lc.ranking}`} small />
+              {/* Social Hub (Creative Section) */}
+              <div className="border-b-[2px] border-foreground bg-paper p-6 md:p-8">
+                <div className="flex flex-col gap-6 md:flex-row md:items-start">
+                  <div className="flex-1">
+                    <span className="chip bg-grape">Social Sentiment Audit</span>
+                    <p className="mt-4 font-display text-lg text-foreground/80 leading-relaxed">
+                      {ai.socialAudit || "Establishing a strong professional presence across community platforms."}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 md:w-64">
+                    <SocialCard 
+                      icon={<Linkedin size={18} />} 
+                      label="LinkedIn" 
+                      href={profile.linkedin_handle ? `https://linkedin.com/in/${profile.linkedin_handle}` : null}
+                      color="bg-[#0077B5]"
+                    />
+                    <SocialCard 
+                      icon={<Twitter size={18} />} 
+                      label="X / Twitter" 
+                      href={profile.twitter_handle ? `https://x.com/${profile.twitter_handle}` : null}
+                      color="bg-foreground"
+                    />
+                    <SocialCard 
+                      icon={<Instagram size={18} />} 
+                      label="Instagram" 
+                      href={profile.instagram_handle ? `https://instagram.com/${profile.instagram_handle}` : null}
+                      color="bg-[#E4405F]"
+                    />
+                    <SocialCard 
+                      icon={<Github size={18} />} 
+                      label="GitHub" 
+                      href={profile.github_handle ? `https://github.com/${profile.github_handle}` : null}
+                      color="bg-[#333]"
+                    />
+                  </div>
                 </div>
-              )}
+              </div>
 
-              {/* Top projects */}
-              {gh?.topRepos && gh.topRepos.length > 0 && (
-                <div className="p-6 md:p-8">
-                  <span className="chip mb-4 bg-electric">Top projects</span>
-                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-                    {gh.topRepos.map((r) => (
-                      <a
-                        key={r.name}
-                        href={r.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="brut brut-hover bg-background p-4"
-                      >
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-display text-lg font-bold">{r.name}</h4>
-                          <span className="chip">★ {r.stars}</span>
+              {/* Deep Dive Projects */}
+              {ai.projectInsights && ai.projectInsights.length > 0 && (
+                <div className="border-b-[2px] border-foreground p-6 md:p-8">
+                  <span className="chip mb-4 bg-neon">Project Deep Dives</span>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    {ai.projectInsights.map((proj, i) => (
+                      <div key={i} className="brut bg-background p-5">
+                        <h4 className="font-display text-lg font-bold">{proj.name}</h4>
+                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{proj.impact}</p>
+                        <div className="mt-3 flex flex-wrap gap-1">
+                          {proj.techStack.split(',').map((t, ti) => (
+                            <span key={ti} className="border-[1px] border-foreground px-1.5 py-0.5 font-mono text-[9px] uppercase">{t.trim()}</span>
+                          ))}
                         </div>
-                        {r.description && (
-                          <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                            {r.description}
-                          </p>
-                        )}
-                        <div className="mt-3 font-mono text-[10px] uppercase tracking-widest">
-                          {r.language || "—"}
-                        </div>
-                      </a>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -341,6 +377,41 @@ function PublicProfilePage() {
         </footer>
       </div>
     </main>
+  );
+}
+
+function SocialCard({ icon, label, href, color }: { icon: React.ReactNode; label: string; href: string | null; color: string }) {
+  if (!href) return (
+    <div className="brut opacity-30 grayscale p-3 flex flex-col items-center justify-center gap-2 aspect-square text-center">
+      <div className="text-foreground">{icon}</div>
+      <span className="font-mono text-[8px] uppercase tracking-tighter">{label}</span>
+    </div>
+  );
+
+  return (
+    <a 
+      href={href} 
+      target="_blank" 
+      rel="noreferrer" 
+      className={`brut brut-hover brut-press p-3 flex flex-col items-center justify-center gap-2 aspect-square text-center bg-white`}
+    >
+      <div className={`p-1.5 rounded-full text-white ${color}`}>{icon}</div>
+      <span className="font-mono text-[8px] uppercase tracking-tighter font-bold">{label}</span>
+    </a>
+  );
+}
+
+function Versatility({ label, value }: { label: string; value: number }) {
+  return (
+    <div>
+      <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-1">
+        <span>{label}</span>
+        <span>{value}%</span>
+      </div>
+      <div className="h-1.5 border-[1.5px] border-foreground">
+        <span className="block h-full bg-foreground" style={{ width: `${value}%` }} />
+      </div>
+    </div>
   );
 }
 
@@ -376,23 +447,6 @@ function BulletBox({ label, items }: { label: string; items: string[] }) {
           <li key={i}>→ {it}</li>
         ))}
       </ul>
-    </div>
-  );
-}
-
-function Score({ label, v }: { label: string; v: number }) {
-  return (
-    <div className="brut p-3">
-      <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-        {label}
-      </div>
-      <div className="stat-num mt-1 text-2xl">{v}</div>
-      <div className="mt-2 h-1.5 border-[1.5px] border-foreground">
-        <span
-          className="block h-full bg-foreground"
-          style={{ width: `${Math.min(100, Math.max(0, v))}%` }}
-        />
-      </div>
     </div>
   );
 }

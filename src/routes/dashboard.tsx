@@ -17,6 +17,9 @@ type Profile = {
   display_name: string | null;
   headline: string | null;
   github_handle: string | null;
+  linkedin_handle: string | null;
+  twitter_handle: string | null;
+  instagram_handle: string | null;
   leetcode_handle: string | null;
   resume_path: string | null;
   generated_data: any;
@@ -42,6 +45,9 @@ function Dashboard() {
   const [displayName, setDisplayName] = useState("");
   const [headline, setHeadline] = useState("");
   const [github, setGithub] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+  const [twitter, setTwitter] = useState("");
+  const [instagram, setInstagram] = useState("");
   const [leetcode, setLeetcode] = useState("");
   const [resumePath, setResumePath] = useState<string | null>(null);
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
@@ -68,6 +74,9 @@ function Dashboard() {
           setDisplayName(profile.display_name ?? "");
           setHeadline(profile.headline ?? "");
           setGithub(profile.github_handle ?? "");
+          setLinkedin(profile.linkedin_handle ?? "");
+          setTwitter(profile.twitter_handle ?? "");
+          setInstagram(profile.instagram_handle ?? "");
           setLeetcode(profile.leetcode_handle ?? "");
           setResumePath(profile.resume_path ?? null);
           setResumeUrl(profile.resume_path ?? null); // Cloudinary stores the full URL
@@ -181,21 +190,34 @@ function Dashboard() {
   };
 
   const handleGenerate = async () => {
-    if (!profile) {
-      toast.error("Save your profile first");
-      return;
-    }
-    if (!github) {
-      toast.error("Add your GitHub handle first");
+    if (!username) {
+      toast.error("Set a username first");
       return;
     }
     setGenerating(true);
     try {
       const token = await getIdToken();
       if (!token) throw new Error("Please log in again");
+      
+      // Auto-save before generating to ensure backend has latest handles
+      await saveProfile({
+        data: {
+          idToken: token,
+          username,
+          display_name: displayName || null,
+          headline: headline || null,
+          github_handle: github || null,
+          linkedin_handle: linkedin || null,
+          twitter_handle: twitter || null,
+          instagram_handle: instagram || null,
+          leetcode_handle: leetcode || null,
+          resume_path: resumePath,
+        }
+      });
+
       const { profile: updated } = await generateProofLink({ data: { idToken: token } });
       setProfile(updated as Profile);
-      toast.success("ProofLink generated");
+      toast.success("ProofLink generated with latest data");
     } catch (e: any) {
       toast.error(e.message || "Generation failed");
     } finally {
@@ -296,7 +318,43 @@ function Dashboard() {
                       />
                     </div>
                   </Field>
-                  <Field label="LeetCode handle (optional, mocked)">
+                  <Field label="LinkedIn Profile">
+                    <div className="flex items-stretch border-[2px] border-foreground bg-background">
+                      <span className="flex items-center bg-foreground px-3 font-mono text-xs text-background">linkedin.com/in/</span>
+                      <input
+                        value={linkedin}
+                        onChange={(e) => setLinkedin(e.target.value.trim())}
+                        placeholder="ada-lovelace"
+                        className="w-full bg-transparent px-3 py-3 font-mono text-sm outline-none"
+                      />
+                    </div>
+                  </Field>
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <Field label="X (Twitter)">
+                    <div className="flex items-stretch border-[2px] border-foreground bg-background">
+                      <span className="flex items-center bg-foreground px-3 font-mono text-xs text-background">x.com/</span>
+                      <input
+                        value={twitter}
+                        onChange={(e) => setTwitter(e.target.value.trim())}
+                        placeholder="ada"
+                        className="w-full bg-transparent px-3 py-3 font-mono text-sm outline-none"
+                      />
+                    </div>
+                  </Field>
+                  <Field label="Instagram">
+                    <div className="flex items-stretch border-[2px] border-foreground bg-background">
+                      <span className="flex items-center bg-foreground px-3 font-mono text-xs text-background">ig/</span>
+                      <input
+                        value={instagram}
+                        onChange={(e) => setInstagram(e.target.value.trim())}
+                        placeholder="ada_codes"
+                        className="w-full bg-transparent px-3 py-3 font-mono text-sm outline-none"
+                      />
+                    </div>
+                  </Field>
+                  <Field label="LeetCode handle (optional)">
                     <div className="flex items-stretch border-[2px] border-foreground bg-background">
                       <span className="flex items-center bg-foreground px-3 font-mono text-xs text-background">leetcode/</span>
                       <input

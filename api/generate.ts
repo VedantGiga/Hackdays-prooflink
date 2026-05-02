@@ -35,7 +35,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // GitHub Fetch
     const github = await fetchGithub(profile.github_handle);
-    const ai = await callGemini({ github, handles: { github: profile.github_handle } });
+    const ai = await callBestAvailableGemini({ 
+      github, 
+      handles: { 
+        github: profile.github_handle,
+        linkedin: profile.linkedin_handle,
+        twitter: profile.twitter_handle,
+        instagram: profile.instagram_handle
+      } 
+    });
 
     const generated = { ai, github, generatedAt: new Date().toISOString() };
     await doc.ref.update({
@@ -53,24 +61,79 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 async function fetchGithub(handle: string) {
   const userRes = await fetch(`https://api.github.com/users/${handle}`);
+  if (!userRes.ok) throw new Error(`GitHub User Fetch Failed: ${userRes.statusText}`);
   const user = await userRes.json();
+  
   const reposRes = await fetch(`https://api.github.com/users/${handle}/repos?per_page=100&sort=updated`);
+  if (!reposRes.ok) throw new Error(`GitHub Repos Fetch Failed: ${reposRes.statusText}`);
   const repos: any[] = await reposRes.json();
+  
+  if (!Array.isArray(repos)) throw new Error("GitHub returned invalid repository data");
+
   const totalStars = repos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
   return { user, stats: { totalStars, activeRepos: repos.length }, topRepos: repos.slice(0, 6) };
 }
 
-async function callGemini(payload: any) {
+async function callBestAvailableGemini(payload: any) {
   const apiKey = process.env.GEMINI_API_KEY;
-  const prompt = `Dev data: ${JSON.stringify(payload)}. Return JSON capability profile.`;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-  const res = await fetch(url, {
+  if (!apiKey) throw new Error("Gemini API key missing on server");
+
+  // Step 1: Discover available models
+  const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+  const listRes = await fetch(listUrl);
+  const listData = await listRes.json();
+  
+  const availableModels = listData.models || [];
+  const bestModel = availableModels.find((m: any) => 
+    m.supportedGenerationMethods.includes("generateContent") && 
+    (m.name.includes("flash") || m.name.includes("pro"))
+  );
+
+  if (!bestModel) {
+    throw new Error(`No generation-capable models found in your account. Found: ${availableModels.map((m:any)=>m.name).join(', ')}`);
+  }
+
+  const modelName = bestModel.name; // e.g. "models/gemini-pro"
+  console.log(`Using discovered model: ${modelName}`);
+
+  const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent?key=${apiKey}`;
+  const res = await fetch(generateUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+    body: JSON.stringify({ 
+      contents: [{ 
+        parts: [{ 
+          text: `You are a Senior Technical Architect and Head of Recruitment. 
+          Perform a deep audit of this developer's work: ${JSON.stringify(payload)}.
+          
+          Return a comprehensive JSON profile with these fields:
+          - headline: High-impact professional title.
+          - summary: 2 paragraphs of deep technical analysis.
+          - capabilityScore: 0-100.
+          - skills: Top 8 technical skills.
+          - strengths: 3 professional strengths.
+          - suggestions: 3 technical growth steps.
+          - hireSignal: TOP, HIGH, or MEDIUM.
+          - versatility: { frontend: 0-100, backend: 0-100, devops: 0-100 } based on repo languages.
+          - careerTrajectory: A 1-sentence prediction of their next 2 years.
+          - projectInsights: An array of 3 objects { name, impact, techStack } for the best projects.
+          - socialAudit: A 1-sentence analysis of their community presence based on the provided social handles (LinkedIn, X, IG).
+          
+          Return ONLY raw JSON.` 
+        }] 
+      }] 
+    }),
   });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(`Gemini Error (${res.status}): ${err.error?.message || res.statusText}`);
+  }
+
   const data = await res.json();
-  let text = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-  text = text.replace(/^```json\n?/, "").replace(/\n?```$/, "").trim();
-  return JSON.parse(text);
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error("AI failed to generate content.");
+
+  const cleaned = text.replace(/^```json\n?/, "").replace(/\n?```$/, "").trim();
+  return JSON.parse(cleaned);
 }
